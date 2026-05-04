@@ -1,0 +1,31 @@
+name: Discord Checkin
+
+on:
+  schedule:
+    # 每天 UTC 01:00 = 北京时间 09:00
+    - cron: '0 1 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm start
+        env:
+          DISCORD_USER_TOKEN: ${{ secrets.DISCORD_USER_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          DISCORD_CHECKIN_CHANNEL_ID: ${{ secrets.DISCORD_CHECKIN_CHANNEL_ID }}
+          DISCORD_CHECKIN_MESSAGE_ID: ${{ secrets.DISCORD_CHECKIN_MESSAGE_ID }}
+          DISCORD_BOT_APPLICATION_ID: ${{ secrets.DISCORD_BOT_APPLICATION_ID }}
+          DISCORD_CHECKIN_CUSTOM_ID: hub:checkin
